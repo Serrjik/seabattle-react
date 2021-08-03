@@ -1,0 +1,84 @@
+.battlefield {
+	position: relative;
+}
+
+.battlefield-table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	background: rgba(40, 46, 250, 0.05);
+}
+
+.battlefield-item {
+	position: relative;
+	border: 1px solid rgba(6, 25, 247, 0.15);
+}
+
+.battlefield-item__hovered:hover {
+	background-color: #c9c9ff;
+}
+
+.battlefield-status {
+	text-align: center;
+	padding: 20px;
+}
+
+.marker {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	text-align: center;
+	width: 100%;
+	height: 100%;
+}
+
+.ship {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: -3px;
+	border: 3px solid #0400ff;
+	background: rgba(0, 55, 255, 0.45);
+}
+
+.ship-killed {
+	border-color: red;
+	background-color: rgba(255, 0, 0, 0.45);
+}
+
+.shot {
+	text-align: center;
+	display: flex;
+	position: absolute;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.shot-missed {
+	color: gray;
+}
+
+.shot-missed::before {
+	content: "⚫";
+}
+
+.shot-hitted {
+	z-index: 1;
+	background-image: url("./sets/close.png");
+	background-size: 100% 100%;
+}
+
+.dock {
+	position: relative;
+	border: 1px dashed gray;
+	margin-right: 50px;
+}
+
+.battlefield-constructor {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	margin: 50px;
+}

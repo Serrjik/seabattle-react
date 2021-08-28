@@ -1,27 +1,33 @@
-import { useSeaBattle } from "../hooks"
-import styles from "./styles.module.css"
+import { useSeaBattle } from '../hooks'
+import styles from './styles.module.css'
 import PropTypes from 'prop-types'
+import { useMemo } from 'react'
+import { forwardRef } from 'react'
 
 // Здесь хранится разлиновка (матрица) игрового поля.
-const BattleFieldTable = props => {
+const BattleFieldTable = forwardRef((props, ref) => {
 	const { columns, rows, signed, axisX, axisY } = props
 	const { cellSize } = useSeaBattle()
 
-	const matrix = []
+	const matrix = useMemo(() => {
+		const matrix = []
 
-	for (let y = 0; y < rows; y++) {
-		const row = []
+		for (let y = 0; y < rows; y++) {
+			const row = []
 
-		for (let x = 0; x < columns; x++) {
-			const item = { x, y }
-			row.push(item)
+			for (let x = 0; x < columns; x++) {
+				const item = { x, y }
+				row.push(item)
+			}
+
+			matrix.push(row)
 		}
 
-		matrix.push(row)
-	}
+		return matrix
+	}, [columns, rows])
 
 	return (
-		<table className={styles['battlefield-table']}>
+		<table ref={ref} className={styles['battlefield-table']}>
 			<tbody>
 				{matrix.map((row, y) => (
 					<tr key={y}>
@@ -72,7 +78,7 @@ const BattleFieldTable = props => {
 			</tbody>
 		</table>
 	)
-}
+})
 
 export default BattleFieldTable
 

@@ -1,7 +1,4 @@
-import { BattleField, BattleFieldTable, Ship, Shot } from "./components";
-
-import { Switch, Route, Link } from "react-router-dom";
-
+import { Switch, Route } from "react-router-dom";
 import { BotPage, EditorPage, MainPage } from "./pages"
 
 const App = () => {

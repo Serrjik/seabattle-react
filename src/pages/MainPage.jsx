@@ -1,31 +1,33 @@
-import styles from "./styles.module.css"
-import { BattleField, BattleFieldTable, Ship, Shot } from "../components";
-import { Link } from "react-router-dom";
+import styles from './styles.module.css'
+import { BattleField, BattleFieldTable, Ship, Shot } from '../components'
+import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 const MainPage = () => {
+	const ships = useSelector(state => state.main.ships)
+
 	return (
 		<div className={styles.container}>
 			<div className={styles['main-content']}>
 				<BattleField>
 					<BattleFieldTable
-						columns={12}
-						rows={5}
+						// columns={12}
+						// rows={5}
 						// signed={false}
 						axisX={n => n + 1}
-						axisY ={n => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n]}
+						// axisY ={n => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n]}
 					/>
 
-					<Ship x={0} y={0} length={4} direction="row" />
-					<Ship x={2} y={2} length={2} direction="column" />
+					{ships.map(ship => (
+						<Ship key={ship.id} {...ship} />
+					))}
 				</BattleField>
 
 				<div className={styles['main-actions']}>
-					<Link to='/editor'>
-						<button className={styles.action}>
-							Редактировать
-						</button>
+					<Link to="/editor">
+						<button className={styles.action}>Редактировать</button>
 					</Link>
-					<Link to='/bot'>
+					<Link to="/bot">
 						<button className={styles.action}>
 							Играть с ботом
 						</button>

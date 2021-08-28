@@ -30,7 +30,7 @@ const EditorPage = () => {
 	const clickHandler = useCallback(() => {
 		dispatch(setDefaultShips(ships))
 		history.push('/')
-	}, [dispatch, ships])
+	}, [dispatch, history, ships])
 
 	return (
 		<div className={styles.container}>

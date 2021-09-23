@@ -114,7 +114,9 @@ const BattleFieldEditor = props => {
 					<DraggableShip
 						key={ship.id}
 						{...ship}
-						onClick={() => onRotate(ship.id)}
+						onClick={e =>
+							onRotate(ship.id, e.clientX, e.clientY, cellSize)
+						}
 					/>
 				))}
 			</BattleField>

@@ -67,22 +67,55 @@ export const editorSlice = createSlice({
 		// Функция поворачивает переданный корабль.
 		rotate(state, action) {
 			// id корабля, который хотим повернуть.
-			const id = action.payload
+			const { id, mouseX, mouseY, cellSize } = action.payload
 
 			// Поворачиваемый корабль.
 			const ship = state.ships.find(ship => ship.id === id)
 
-			if (!ship) {
+			if (!ship || ship.length === 1) {
 				return
 			}
 
 			if (!ship.placed) {
 				ship.direction = ship.direction === 'row' ? 'column' : 'row'
 			} else {
+				const shipElem = document.querySelector(
+					`[class^=styles_ship]:nth-child(${ship.id + 1})`
+				)
+
+				const { left: shipCoordinatesLeft, top: shipCoordinatesTop } =
+					shipElem.getBoundingClientRect()
+
+				let newShipX = null
+				let newShipY = null
+				let cellByWhichToRotate = null
+
+				if (ship.direction === 'row') {
+					cellByWhichToRotate = Math.floor(
+						(mouseX - shipCoordinatesLeft) / cellSize
+					)
+					if (cellByWhichToRotate === ship.length) {
+						cellByWhichToRotate--
+					}
+
+					newShipX = ship.x + cellByWhichToRotate
+					newShipY = ship.y - cellByWhichToRotate
+				} else {
+					cellByWhichToRotate = Math.floor(
+						(mouseY - shipCoordinatesTop) / cellSize
+					)
+					if (cellByWhichToRotate === ship.length) {
+						cellByWhichToRotate--
+					}
+
+					newShipX = ship.x - cellByWhichToRotate
+					newShipY = ship.y + cellByWhichToRotate
+				}
+
 				/*
-				Корабли, которые уже расположены, кроме того,
-				который сейчас хотим повернуть.
-			*/
+					Корабли, которые уже расположены, кроме того,
+					который сейчас хотим повернуть.
+				*/
 				const placed = state.ships.filter(
 					ship => ship.placed && ship.id !== id
 				)
@@ -96,11 +129,15 @@ export const editorSlice = createSlice({
 					{
 						...ship,
 						direction: ship.direction === 'row' ? 'column' : 'row',
+						x: newShipX,
+						y: newShipY,
 					},
 				])
 
 				if (normal) {
 					ship.direction = ship.direction === 'row' ? 'column' : 'row'
+					ship.x = newShipX
+					ship.y = newShipY
 				}
 			}
 		},

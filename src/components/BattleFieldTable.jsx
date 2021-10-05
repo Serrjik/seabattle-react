@@ -1,12 +1,12 @@
 import { useSeaBattle } from '../hooks'
 import styles from './styles.module.css'
 import PropTypes from 'prop-types'
-import { useMemo } from 'react'
-import { forwardRef } from 'react'
+import { useMemo, forwardRef } from 'react'
+import classNames from 'classnames'
 
 // Здесь хранится разлиновка (матрица) игрового поля.
 const BattleFieldTable = forwardRef((props, ref) => {
-	const { columns, rows, signed, axisX, axisY } = props
+	const { columns, rows, signed, axisX, axisY, hovered, onClick } = props
 	const { cellSize } = useSeaBattle()
 
 	const matrix = useMemo(() => {
@@ -62,10 +62,17 @@ const BattleFieldTable = forwardRef((props, ref) => {
 							return (
 								<td
 									key={x}
-									className={styles['battlefield-item']}
+									className={classNames({
+										[styles['battlefield-item']]: true,
+										[styles['battlefield-item__hovered']]:
+											hovered,
+									})}
 									style={{
 										width: `${cellSize}px`,
 										height: `${cellSize}px`,
+									}}
+									onClick={() => {
+										onClick(x, y)
 									}}
 								>
 									{markerX}
@@ -88,6 +95,9 @@ BattleFieldTable.propTypes = {
 	signed: PropTypes.bool,
 	axisX: PropTypes.func,
 	axisY: PropTypes.func,
+	// Мышь над полем или нет?
+	hovered: PropTypes.bool.isRequired,
+	onClick: PropTypes.func.isRequired,
 }
 
 BattleFieldTable.defaultProps = {
@@ -96,4 +106,6 @@ BattleFieldTable.defaultProps = {
 	signed: true,
 	axisX: n => n + 1,
 	axisY: n => 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЫЭЮЯ'[n], // не более 29
+	hovered: false,
+	onClick: () => {},
 }

@@ -89,3 +89,119 @@ export const randomize = () => {
 
 	return getDefaultShips()
 }
+
+/*
+	Функция добавляет выстрел на поле.
+	Принимает все корабли, выстрелы что уже есть, и координаты нового выстрела.
+*/
+export const shoot = (ships, shots, x, y) => {
+	if (shots.find(shot => shot.x === x && shot.y === y)) {
+		return false
+	}
+
+	const shot = {
+		id: 1 + Math.max(0, ...shots.map(shot => shot.id)),
+		x,
+		y,
+		status: 'missed',
+	}
+
+	shots.push(shot)
+
+	// Корабль, в который попали.
+	let hittedShip = null
+
+	mainLoop: for (const ship of ships) {
+		const dx = ship.direction === 'row'
+		const dy = ship.direction === 'column'
+
+		for (let i = 0; i < ship.length; i++) {
+			const x = ship.x + dx * i
+			const y = ship.y + dy * i
+
+			if (shot.x === x && shot.y === y) {
+				shot.status = 'hitted'
+				hittedShip = ship
+				break mainLoop
+			}
+		}
+	}
+
+	if (shot.status === 'hitted') {
+		const hittedShots = []
+
+		const dx = hittedShip.direction === 'row'
+		const dy = hittedShip.direction === 'column'
+
+		for (let i = 0; i < hittedShip.length; i++) {
+			const x = hittedShip.x + dx * i
+			const y = hittedShip.y + dy * i
+			const shot = shots.find(shot => shot.x === x && shot.y === y)
+
+			if (shot) {
+				hittedShots.push(shot)
+			}
+		}
+
+		if (hittedShots.length === hittedShip.length) {
+			hittedShip.killed = true
+		}
+	}
+
+	return shot
+}
+
+// Функция возвращает ячейку, в которую в принципе имеет смысл стрялять.
+export const getFreeCell = (ships, shots) => {
+	/*
+		Вспомогательная матрица.
+		Если в ячейку нельзя ставить корабль, записываем в неё 1.
+	*/
+	const matrix = Array(10)
+		.fill()
+		.map(() => Array(10).fill(0))
+
+	for (const { x, y } of shots) {
+		matrix[y][x] = 1
+	}
+
+	for (const ship of ships) {
+		if (!ship.killed) {
+			continue
+		}
+
+		const { direction, length } = ship
+
+		const dx = direction === 'row'
+		const dy = direction === 'column'
+
+		if (direction === 'row') {
+			for (let y = ship.y - 1; y <= ship.y + 1; y++) {
+				for (let x = ship.x - 1; x <= ship.x + length; x++) {
+					if (isValidCoordinates(x, y)) {
+						matrix[y][x] = 1
+					}
+				}
+			}
+		} else {
+			for (let y = ship.y - 1; y <= ship.y + length; y++) {
+				for (let x = ship.x - 1; x <= ship.x + 1; x++) {
+					if (isValidCoordinates(x, y)) {
+						matrix[y][x] = 1
+					}
+				}
+			}
+		}
+	}
+
+	const freeCells = []
+	for (let y = 0; y < 10; y++) {
+		for (let x = 0; x < 10; x++) {
+			if (matrix[y][x] === 0) {
+				freeCells.push({ x, y })
+			}
+		}
+	}
+
+	return freeCells[Math.floor(Math.random() * freeCells.length)]
+}

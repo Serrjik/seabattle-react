@@ -1,7 +1,12 @@
 /*     Состояние игры с ботом.     */
 
 import { createSlice } from '@reduxjs/toolkit'
-import { getFreeCell, randomize, shoot as doShoot } from '../additional'
+import {
+	getFreeCell,
+	getShotedCell,
+	randomize,
+	shoot as doShoot,
+} from '../additional'
 
 const initialState = {
 	playerShips: [],
@@ -69,7 +74,7 @@ export const botSlice = createSlice({
 				botTurn = false
 
 				// Если игрок не попал в корабль, ход переходит к боту.
-				const freeCell = getFreeCell(
+				const freeCell = getShotedCell(
 					state.playerShips,
 					state.playerShots
 				)

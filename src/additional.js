@@ -172,9 +172,6 @@ export const getFreeCell = (ships, shots) => {
 
 		const { direction, length } = ship
 
-		const dx = direction === 'row'
-		const dy = direction === 'column'
-
 		if (direction === 'row') {
 			for (let y = ship.y - 1; y <= ship.y + 1; y++) {
 				for (let x = ship.x - 1; x <= ship.x + length; x++) {
@@ -202,6 +199,240 @@ export const getFreeCell = (ships, shots) => {
 			}
 		}
 	}
+
+	return freeCells[Math.floor(Math.random() * freeCells.length)]
+}
+
+/*
+	Функция возвращает ячейку для выстрела с наибольшей вероятностью попадания
+	используя данные по убитым и раненым кораблям.
+*/
+export const getShotedCell = (ships, shots) => {
+	// Количество убитых кораблей каждого размера (1-палубных - 4 палубных).
+	let numberOfKilledShipsOfEachSize = [
+		[1, 0],
+		[2, 0],
+		[3, 0],
+		[4, 0],
+	]
+
+	// Функция отмечает углы секции корабля пустыми.
+	const markCornersEmpty = (ship, x, y) => {
+		;[
+			[ship.y - 1, ship.x - 1],
+			[ship.y + 1, ship.x - 1],
+			[ship.y - 1, ship.x + 1],
+			[ship.y + 1, ship.x + 1],
+		].forEach(([y, x]) => {
+			if (isValidCoordinates(x, y)) {
+				matrix[y][x] = 1
+			}
+		})
+	}
+
+	/*
+		Вспомогательная матрица.
+		Если в ячейке не может быть корабля, или уже есть выстрел,
+		то записываем в неё 1.
+	*/
+	const matrix = Array(10)
+		.fill()
+		.map(() => Array(10).fill(0))
+
+	for (const { x, y } of shots) {
+		matrix[y][x] = 1
+	}
+
+	for (const ship of ships) {
+		const { direction, length } = ship
+
+		/* Если корабль НЕ убит: */
+		if (!ship.killed) {
+			if (direction === 'row') {
+				for (let y = ship.y - 1; y <= ship.y + 1; y++) {
+					for (let x = ship.x - 1; x <= ship.x + length; x++) {
+						if (shots.find(shot => shot.x === x && shot.y === y)) {
+							markCornersEmpty(ship, x, y)
+						}
+					}
+				}
+			} else {
+				for (let y = ship.y - 1; y <= ship.y + length; y++) {
+					for (let x = ship.x - 1; x <= ship.x + 1; x++) {
+						if (shots.find(shot => shot.x === x && shot.y === y)) {
+							markCornersEmpty(ship, x, y)
+						}
+					}
+				}
+			}
+
+			continue
+		}
+
+		/* Если корабль убит: */
+		numberOfKilledShipsOfEachSize[ship.length - 1][1]++
+
+		if (direction === 'row') {
+			for (let y = ship.y - 1; y <= ship.y + 1; y++) {
+				for (let x = ship.x - 1; x <= ship.x + length; x++) {
+					if (isValidCoordinates(x, y)) {
+						matrix[y][x] = 1
+					}
+				}
+			}
+		} else {
+			for (let y = ship.y - 1; y <= ship.y + length; y++) {
+				for (let x = ship.x - 1; x <= ship.x + 1; x++) {
+					if (isValidCoordinates(x, y)) {
+						matrix[y][x] = 1
+					}
+				}
+			}
+		}
+	}
+
+	// Сколько всего убитых кораблей?
+	const totalKilledShips = numberOfKilledShipsOfEachSize.reduce(
+		(acc, item) => acc + item[1],
+		0
+	)
+
+	/*
+		В массиве оставляем только количество не полностью убитых кораблей
+		одинакового размера.
+	*/
+	numberOfKilledShipsOfEachSize = numberOfKilledShipsOfEachSize.filter(
+		item => item[0] !== 5 - item[1]
+	)
+
+	console.log(
+		'numberOfKilledShipsOfEachSize: ',
+		numberOfKilledShipsOfEachSize
+	)
+
+	/*
+		Если на поле остались недобитыми только корабли одного размера
+		и это не одиночные корабли:
+	*/
+	if (
+		numberOfKilledShipsOfEachSize.length === 1 &&
+		numberOfKilledShipsOfEachSize[0][0] !== 1
+	) {
+		// Создаём массив ячеек с ранеными палубами.
+		const cellsWithWoundedDecks = []
+
+		for (const ship of ships) {
+			const { direction, length } = ship
+
+			/* Если корабль НЕ убит: */
+			if (!ship.killed) {
+				if (direction === 'row') {
+					for (let y = ship.y - 1; y <= ship.y + 1; y++) {
+						for (let x = ship.x - 1; x <= ship.x + length; x++) {
+							if (
+								shots.find(shot => shot.x === x && shot.y === y)
+							) {
+								cellsWithWoundedDecks.push([x, y])
+							}
+						}
+					}
+				} else {
+					for (let y = ship.y - 1; y <= ship.y + length; y++) {
+						for (let x = ship.x - 1; x <= ship.x + 1; x++) {
+							if (
+								shots.find(shot => shot.x === x && shot.y === y)
+							) {
+								cellsWithWoundedDecks.push([x, y])
+							}
+						}
+					}
+				}
+			}
+		}
+		console.log('cellsWithWoundedDecks: ', cellsWithWoundedDecks)
+
+		/*
+			Если количество раненых ячеек равно 3 для двухпалубных и
+			трёхпалубных кораблей, и 1 или более для четырёхпалубного, отмечаем
+			пустыми те ячейки, которые находятся далее расстояния равного длине
+			оставшихся недобитыми кораблей - 1 от подбитых палуб.
+		*/
+		if (
+			(numberOfKilledShipsOfEachSize[0][0] === 2 &&
+				(cellsWithWoundedDecks.length >= 3 ||
+					(cellsWithWoundedDecks.length >= 2 &&
+						totalKilledShips === 8) ||
+					(cellsWithWoundedDecks.length === 1 &&
+						totalKilledShips === 9))) ||
+			(numberOfKilledShipsOfEachSize[0][0] === 3 &&
+				(cellsWithWoundedDecks.length >= 3 ||
+					(cellsWithWoundedDecks.length >= 1 &&
+						totalKilledShips === 9))) ||
+			(numberOfKilledShipsOfEachSize[0][0] === 4 &&
+				cellsWithWoundedDecks.length >= 1)
+		) {
+			console.log(
+				'на этом этапе можно прикинуть, в каких ячейках точно не будет кораблей'
+			)
+			/*
+				Создаём вспомогательную матрицу.
+				В ней отметим ячейки, в которых могут быть палубы кораблей.
+				Значение 'possible' - может быть палуба корабля.
+			*/
+			const mapOfAllowedCells = Array(10)
+				.fill()
+				.map(() => Array(10).fill(null))
+
+			/*
+				Отмечаем пустыми те ячейки, которые находятся далее расстояния
+				равного длине оставшихся недобитыми кораблей - 1 от подбитых палуб.
+			*/
+			// Расстояние, в пределах которого возможно размещение палуб корабля.
+			const allowableDistance = numberOfKilledShipsOfEachSize[0][0] - 1
+
+			// Отметим ячейки, в которых могут быть палубы кораблей.
+			cellsWithWoundedDecks.forEach(([x, y]) => {
+				for (
+					let dy = y - allowableDistance;
+					dy <= y + allowableDistance;
+					dy++
+				) {
+					for (
+						let dx = x - allowableDistance;
+						dx <= x + allowableDistance;
+						dx++
+					) {
+						if (
+							isValidCoordinates(x, y) &&
+							isValidCoordinates(dx, dy) &&
+							dx !== x &&
+							dy !== y &&
+							// !cellsWithWoundedDecks.includes([dx][dy]) &&
+							matrix[dy][dx] === 0
+						) {
+							mapOfAllowedCells[dy][dx] = 'possible'
+						}
+					}
+				}
+			})
+			console.log('mapOfAllowedCells: ', mapOfAllowedCells)
+
+			matrix.map(item => {
+				console.log(item)
+			})
+		}
+	}
+
+	const freeCells = []
+	for (let y = 0; y < 10; y++) {
+		for (let x = 0; x < 10; x++) {
+			if (matrix[y][x] === 0) {
+				freeCells.push({ x, y })
+			}
+		}
+	}
+
+	console.log(matrix)
 
 	return freeCells[Math.floor(Math.random() * freeCells.length)]
 }

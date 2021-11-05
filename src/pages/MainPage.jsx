@@ -1,5 +1,5 @@
 import styles from './styles.module.css'
-import { BattleField, BattleFieldTable, Ship, Shot } from '../components'
+import { BattleField, BattleFieldTable, Ship } from '../components'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
@@ -24,10 +24,10 @@ const MainPage = () => {
 				</BattleField>
 
 				<div className={styles['main-actions']}>
-					<Link to="/editor">
+					<Link to='/editor'>
 						<button className={styles.action}>Редактировать</button>
 					</Link>
-					<Link to="/bot">
+					<Link to='/bot'>
 						<button className={styles.action}>
 							Играть с ботом
 						</button>

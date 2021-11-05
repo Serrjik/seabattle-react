@@ -318,6 +318,9 @@ export const getShotedCell = (ships, shots) => {
 		numberOfKilledShipsOfEachSize.length === 1 &&
 		numberOfKilledShipsOfEachSize[0][0] !== 1
 	) {
+		console.log(
+			'На этом этапе можно прикинуть, в каких ячейках точно не будет кораблей'
+		)
 		// Создаём массив ячеек с ранеными палубами.
 		const cellsWithWoundedDecks = []
 
@@ -371,13 +374,10 @@ export const getShotedCell = (ships, shots) => {
 			(numberOfKilledShipsOfEachSize[0][0] === 4 &&
 				cellsWithWoundedDecks.length >= 1)
 		) {
-			console.log(
-				'на этом этапе можно прикинуть, в каких ячейках точно не будет кораблей'
-			)
 			/*
 				Создаём вспомогательную матрицу.
 				В ней отметим ячейки, в которых могут быть палубы кораблей.
-				Значение 'possible' - может быть палуба корабля.
+				Значение 'psbl' - может быть палуба корабля.
 			*/
 			const mapOfAllowedCells = Array(10)
 				.fill()
@@ -391,6 +391,7 @@ export const getShotedCell = (ships, shots) => {
 			const allowableDistance = numberOfKilledShipsOfEachSize[0][0] - 1
 
 			// Отметим ячейки, в которых могут быть палубы кораблей.
+			// TODO: Нужно проверить, исключены ли уже в коде выше угловые ячейки?
 			cellsWithWoundedDecks.forEach(([x, y]) => {
 				for (
 					let dy = y - allowableDistance;
@@ -402,24 +403,33 @@ export const getShotedCell = (ships, shots) => {
 						dx <= x + allowableDistance;
 						dx++
 					) {
+						// console.log('dx: ', dx, 'dy: ', dy)
 						if (
-							isValidCoordinates(x, y) &&
+							// isValidCoordinates(x, y) &&
 							isValidCoordinates(dx, dy) &&
 							dx !== x &&
-							dy !== y &&
+							dy !== y
 							// !cellsWithWoundedDecks.includes([dx][dy]) &&
-							matrix[dy][dx] === 0
 						) {
-							mapOfAllowedCells[dy][dx] = 'possible'
+							if (matrix[dy][dx] === 0) {
+								mapOfAllowedCells[dy][dx] = 'psbl'
+							} else {
+								mapOfAllowedCells[dy][dx] = null
+							}
 						}
 					}
 				}
 			})
 			console.log('mapOfAllowedCells: ', mapOfAllowedCells)
+			console.log(matrix)
 
-			matrix.map(item => {
-				console.log(item)
-			})
+			for (let y = 0; y < 10; y++) {
+				for (let x = 0; x < 10; x++) {
+					if (mapOfAllowedCells[y][x] !== 'psbl') {
+						matrix[y][x] = 1
+					}
+				}
+			}
 		}
 	}
 
@@ -431,8 +441,6 @@ export const getShotedCell = (ships, shots) => {
 			}
 		}
 	}
-
-	console.log(matrix)
 
 	return freeCells[Math.floor(Math.random() * freeCells.length)]
 }

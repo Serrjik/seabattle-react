@@ -1,12 +1,7 @@
 /*     Состояние игры с ботом.     */
 
 import { createSlice } from '@reduxjs/toolkit'
-import {
-	getFreeCell,
-	getShotedCell,
-	randomize,
-	shoot as doShoot,
-} from '../additional'
+import { getShotedCell, randomize, shoot as doShoot } from '../additional'
 
 const initialState = {
 	playerShips: [],
@@ -79,27 +74,31 @@ export const botSlice = createSlice({
 					state.playerShots
 				)
 
-				const shot = doShoot(
-					state.playerShips,
-					state.playerShots,
-					freeCell.x,
-					freeCell.y
-				)
+				if (freeCell !== 'no free cells') {
+					const shot = doShoot(
+						state.playerShips,
+						state.playerShots,
+						freeCell.x,
+						freeCell.y
+					)
 
-				if (!shot) {
-					throw Error('Бот не может сюда стрелять.')
-				}
+					if (!shot) {
+						throw Error('Бот не может сюда стрелять.')
+					}
 
-				// Если бот попал в корабль:
-				if (shot.status === 'hitted') {
-					botTurn = true
+					// Если бот попал в корабль:
+					if (shot.status === 'hitted') {
+						botTurn = true
 
-					const botWin = state.playerShips.every(ship => ship.killed)
+						const botWin = state.playerShips.every(
+							ship => ship.killed
+						)
 
-					if (botWin) {
-						state.playing = false
-						state.playerWin = false
-						return
+						if (botWin) {
+							state.playing = false
+							state.playerWin = false
+							return
+						}
 					}
 				}
 			}

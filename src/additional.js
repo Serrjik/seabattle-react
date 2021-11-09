@@ -441,5 +441,9 @@ export const getShotedCell = (ships, shots) => {
 		}
 	}
 
+	if (freeCells.length === 0) {
+		return 'no free cells'
+	}
+
 	return freeCells[Math.floor(Math.random() * freeCells.length)]
 }

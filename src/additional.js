@@ -305,10 +305,10 @@ export const getShotedCell = (ships, shots) => {
 		item => item[0] !== 5 - item[1]
 	)
 
-	console.log(
-		'numberOfKilledShipsOfEachSize: ',
-		numberOfKilledShipsOfEachSize
-	)
+	// console.log(
+	// 	'numberOfKilledShipsOfEachSize: ',
+	// 	numberOfKilledShipsOfEachSize
+	// )
 
 	/*
 		Если на поле остались недобитыми только корабли одного размера
@@ -318,9 +318,9 @@ export const getShotedCell = (ships, shots) => {
 		numberOfKilledShipsOfEachSize.length === 1 &&
 		numberOfKilledShipsOfEachSize[0][0] !== 1
 	) {
-		console.log(
-			'На этом этапе можно прикинуть, в каких ячейках точно не будет кораблей'
-		)
+		// console.log(
+		// 	'На этом этапе можно прикинуть, в каких ячейках точно не будет кораблей'
+		// )
 		// Создаём массив ячеек с ранеными палубами.
 		const cellsWithWoundedDecks = []
 
@@ -352,7 +352,7 @@ export const getShotedCell = (ships, shots) => {
 				}
 			}
 		}
-		console.log('cellsWithWoundedDecks: ', cellsWithWoundedDecks)
+		// console.log('cellsWithWoundedDecks: ', cellsWithWoundedDecks)
 
 		/*
 			Если количество раненых ячеек равно 3 для двухпалубных и
@@ -391,7 +391,6 @@ export const getShotedCell = (ships, shots) => {
 			const allowableDistance = numberOfKilledShipsOfEachSize[0][0] - 1
 
 			// Отметим ячейки, в которых могут быть палубы кораблей.
-			// TODO: Нужно проверить, исключены ли уже в коде выше угловые ячейки?
 			cellsWithWoundedDecks.forEach(([x, y]) => {
 				for (
 					let dy = y - allowableDistance;
@@ -420,8 +419,8 @@ export const getShotedCell = (ships, shots) => {
 					}
 				}
 			})
-			console.log('mapOfAllowedCells: ', mapOfAllowedCells)
-			console.log(matrix)
+			// console.log('mapOfAllowedCells: ', mapOfAllowedCells)
+			// console.log(matrix)
 
 			for (let y = 0; y < 10; y++) {
 				for (let x = 0; x < 10; x++) {

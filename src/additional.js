@@ -75,7 +75,7 @@ export const isNormalPosition = ships => {
 export const randomize = () => {
 	const ships = getDefaultShips()
 
-	for (let i = 0; i < 100_000; i++) {
+	for (let i = 0; i < 100000; i++) {
 		for (const ship of ships) {
 			ship.x = Math.floor(Math.random() * 10)
 			ship.y = Math.floor(Math.random() * 10)

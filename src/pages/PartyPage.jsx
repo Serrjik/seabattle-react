@@ -189,7 +189,7 @@ const PartyPage = props => {
 					))}
 				</BattleField>
 			</div>
-			<pre>{JSON.stringify(state, null, 3)}</pre>
+			{/* <pre>{JSON.stringify(state, null, 3)}</pre> */}
 		</div>
 	)
 }
